@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from pyspark.sql import SparkSession
@@ -219,4 +220,12 @@ final_df_pd['date'] = datetime.today().strftime('%Y-%m-%d')
 final_df_pd.replace([np.inf, -np.inf], np.nan, inplace=True)
 final_df_pd.fillna(0, inplace=True)
 
-final_df_pd.to_csv('../data/final/final_df.csv', index=False)
+# Define the directory path
+directory = '../data/final'
+
+# Check if the directory exists, if not, create it
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+# Now save the CSV file
+final_df_pd.to_csv(os.path.join(directory, 'final_df.csv'), index=False)
