@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 import matplotlib.pyplot as plt
@@ -44,29 +46,32 @@ players_16_to_18 = players_filtered.filter(F.col('age') <= 18)
 players_19_to_23 = players_filtered.filter(F.col('age') >= 19)
 
 # Step 4: Extract the year of each appearance for players 19+
-players_appearances = players_19_to_23.join(dfs['appearances'], 'player_id').withColumn(
+players_appearances = players_filtered.join(dfs['appearances'], 'player_id').withColumn(
     'year',
     F.year('date')
 )
 
 # Step 5: Aggregate total appearances and distinct years to compute the average appearances per year
 appearances_summary = players_appearances.groupBy('player_id').agg(
-    F.count('*').alias('total_appearances'),
+    F.sum('minutes_played').alias('total_minutes_played'),
     F.countDistinct('year').alias('distinct_years')
 )
 
 average_appearances = appearances_summary.withColumn(
-    'average_appearances_per_year',
-    F.col('total_appearances') / F.col('distinct_years')
+    'average_minutes_per_year',
+    F.col('total_minutes_played') / F.col('distinct_years')
 )
 
 # Step 6: Filter players who average 10 or more appearances per year
-enough_app_players = average_appearances.filter(
-    F.col('average_appearances_per_year') >= 10
+eligible_players = average_appearances.filter(
+    F.col('average_minutes_per_year') >= 450
 )
 
+
 # Step 7: Combine players 16 to 18 with eligible players 19+
-eligible_players = players_16_to_18.select('player_id').union(enough_app_players.select('player_id'))
+# eligible_players = players_16_to_18.select('player_id').union(enough_app_players.select('player_id'))
+#
+# eligible_players.filter(F.col('player_id') == '971570').show()
 
 # Step 8: Group by player_id and get total goals, assists, and minutes played
 total_ga = dfs['appearances'].groupBy('player_id').agg(
@@ -102,7 +107,7 @@ combined_metrics = combined_metrics.withColumn(
 )
 
 # Step 15: Define European competitions for the bonus calculation
-european_comps = ['EL', 'ELQ', 'ECLQ', 'CL', 'CLQ', 'USC']
+european_comps = ['EL', 'ELQ', 'ECLQ', 'CL', 'CLQ', 'USC', 'UCOL']
 
 # Step 16: Filter for players who participated in European competitions
 european_appearances = combined_metrics.filter(F.col('competition_id').isin(european_comps))
@@ -207,5 +212,9 @@ plt.show()
 # Join additional columns for building the recommender (e.g., name, sub_position, age, height_in_cm, image_url)
 final_df = final_df.join(players_with_age.select('player_id', 'name', 'sub_position', 'age', 'height_in_cm', 'image_url', 'current_club_name', 'url'), 'player_id')
 
-# Show the final DataFrame with all the required columns
-final_df.sort('gem_score', ascending=False).show()
+final_df_pd = final_df.toPandas()
+final_df_pd['date'] = datetime.today().strftime('%Y-%m-%d')
+final_df_pd.replace([np.inf, -np.inf], np.nan, inplace=True)
+final_df_pd.fillna(0, inplace=True)
+
+final_df_pd.to_csv('../data/final/final_df.csv', index=False)
