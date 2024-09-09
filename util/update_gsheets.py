@@ -17,7 +17,7 @@ SHEET_NAME = 'player-data'
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-creds = Credentials.from_service_account_file(service_account_info, scopes=SCOPES)
+creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
 client = gspread.authorize(creds)
 
 final_df_pd = pd.read_csv('../data/final/final_df.csv')
