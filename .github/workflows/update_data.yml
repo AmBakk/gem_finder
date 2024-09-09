@@ -25,12 +25,12 @@ jobs:
 
       # Download data from Kaggle
       - name: Run kaggle_dl.py
-        run: python gem_finder/util/kaggle_dl.py
+        run: python kaggle_dl.py
 
       # Prepare data
       - name: Run analysis.py
-        run: python gem_finder/util/analysis.py
+        run: python analysis.py
 
       # Update Google Sheets
       - name: Run update_gsheets.py
-        run: python gem_finder/util/update_gsheets.py
+        run: python update_gsheets.py
