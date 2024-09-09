@@ -8,6 +8,8 @@ import pandas as pd
 
 spark = SparkSession.builder.appName("PlayerAnalysis").getOrCreate()
 
+spark.conf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")
+
 # Define file paths (adjust paths as needed for your local directory structure)
 local_paths = {
     'player_valuations': '../data/raw/player_valuations.csv',
