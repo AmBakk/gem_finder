@@ -1,10 +1,10 @@
 import os
 import zipfile
 
-os.environ['KAGGLE_USERNAME'] = os.getenv('KAGGLE_USERNAME')
-os.environ['KAGGLE_KEY'] = os.getenv('KAGGLE_KEY')
-
-from kaggle.api.kaggle_api_extended import KaggleApi
+# os.environ['KAGGLE_USERNAME'] = os.getenv('KAGGLE_USERNAME')
+# os.environ['KAGGLE_KEY'] = os.getenv('KAGGLE_KEY')
+#
+# from kaggle.api.kaggle_api_extended import KaggleApi
 
 KAGGLE_DATASET = 'davidcariboo/player-scores'  # The dataset to download from Kaggle
 RAW_DATA_DIR = '../data/raw'
